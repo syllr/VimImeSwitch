@@ -32,7 +32,7 @@
     ]]></description>
 
             <change-notes><![CDATA[
-      <p>0.0.3</p>
+      <p>0.0.1</p>
       <ul>
         <li>基于 hadix-lin/ideavim_extension 1.7.4 分叉，仅支持 macOS</li>
         <li>退出插入模式时切换到英文输入法</li>
