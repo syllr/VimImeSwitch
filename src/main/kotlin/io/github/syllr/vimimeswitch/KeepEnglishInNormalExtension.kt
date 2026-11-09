@@ -3,8 +3,7 @@ package io.github.syllr.vimimeswitch
 import com.maddyhome.idea.vim.extension.VimExtension
 
 /**
- * @author hadix
- * @date 09/04/2017
+ * `set keep-english-in-normal` 对应的 IdeaVim 扩展：开启时注册输入法切换。
  */
 class KeepEnglishInNormalExtension : VimExtension {
 
@@ -16,7 +15,6 @@ class KeepEnglishInNormalExtension : VimExtension {
 		InputMethodAutoSwitcher.enable()
 	}
 
-
 	override fun dispose() {
 		InputMethodAutoSwitcher.disable()
 	}
@@ -24,5 +22,4 @@ class KeepEnglishInNormalExtension : VimExtension {
 	companion object {
 		const val NAME = "keep-english-in-normal"
 	}
-
 }

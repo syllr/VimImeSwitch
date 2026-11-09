@@ -6,14 +6,13 @@ This product is a derivative work of IdeaVimExtension
 licensed under the Apache License, Version 2.0.
 
 Modifications made in this derivative work:
-- removed the editor focus listener that switched the input source to English
-  whenever an editor in normal mode regained focus
+- targeted macOS only; the Windows and Linux integrations were removed
+- fixed the input source being switched to English when a window regained focus
+- added the requirement that the focused editor be the currently selected one
+- removed the "restore input source on re-entering insert mode" feature
 - renamed the plugin identifier and Kotlin packages
 - migrated the build to the IntelliJ Platform Gradle Plugin 2.x
 - revised documentation
 
-The bundled macOS library resources/darwin{,-aarch64}/libinput-source-switcher.dylib
-originates from the upstream project distribution.
-
-Portions of the Linux integration are derived from
+The bundled macOS library libinput-source-switcher.dylib is derived from
 https://github.com/vovkasm/input-source-switcher, licensed under the MIT License.

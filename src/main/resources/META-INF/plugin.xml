@@ -31,14 +31,14 @@
       <p>Switch the system input source back to English when leaving insert mode. Requires IdeaVim and macOS.</p>
     ]]></description>
 
-        <change-notes><![CDATA[
-      <p>0.0.2</p>
+            <change-notes><![CDATA[
+      <p>0.0.3</p>
       <ul>
-        <li>首个预发布版本，基于 hadix-lin/ideavim_extension 1.7.4 分叉</li>
-        <li>修正：窗口失去焦点后再切回，会错误地把输入法切成英文</li>
-        <li>插件 ID 改为 io.github.syllr.vimimeswitch，包名同步调整</li>
-        <li>仅保留 macOS 支持</li>
-        <li>构建链迁移至 IntelliJ Platform Gradle Plugin 2.x</li>
+        <li>基于 hadix-lin/ideavim_extension 1.7.4 分叉，仅支持 macOS</li>
+        <li>退出插入模式时切换到英文输入法</li>
+        <li>焦点进入普通模式编辑器时切换到英文</li>
+        <li>窗口重新激活导致的背景编辑器焦点不触发切换</li>
+        <li>插件 ID 独立，构建链为 IntelliJ Platform Gradle Plugin 2.x</li>
       </ul>
     ]]></change-notes>
 
@@ -51,7 +51,5 @@
     <extensions defaultExtensionNs="IdeaVIM">
         <vimExtension
                 implementation="io.github.syllr.vimimeswitch.KeepEnglishInNormalExtension"/>
-        <vimExtension
-                implementation="io.github.syllr.vimimeswitch.KeepEnglishInNormalAndRestoreInInsertExtension"/>
     </extensions>
 </idea-plugin>

@@ -1,26 +1,23 @@
 # VimImeSwitch
 
-IdeaVim 的扩展：从插入模式退回到普通模式时，自动把系统输入法切回英文。仅支持 macOS。
+IdeaVim 的扩展：在适合输入 vim 命令的时机，自动把 macOS 的系统输入法切回英文。仅支持 macOS。
 
-这是 [hadix-lin/ideavim_extension](https://github.com/hadix-lin/ideavim_extension)（Apache-2.0，已停止维护）的延续版本，独立发布，主要差异：
+这是 [hadix-lin/ideavim_extension](https://github.com/hadix-lin/ideavim_extension)（Apache-2.0，已停止维护）的延续版本，独立发布。
 
-- 修正窗口失去焦点再切回时被误切成英文的问题
-- 只保留 macOS 实现，去掉未经验证的 Windows / Linux 分支
-- 插件 ID 与包名独立，不再与旧插件冲突
-- 构建链迁移至 IntelliJ Platform Gradle Plugin 2.x
+## 行为
 
-## 功能
+切换到英文的时机有两处：
 
-- 退出插入模式时切换到英文输入法
-- 焦点落进普通模式下的编辑器时切换到英文输入法
-- 可指定普通模式使用的输入源
+1. 退出插入模式（编辑器里按 `Esc` 等）
+2. 焦点落进处于普通模式的编辑器
 
-判断只有一条：焦点在编辑器里，且该编辑器处于普通模式。终端等非编辑器组件不参与，
-因此在 opencode 之类的 TUI 里输入不会被切换。从编辑器切回终端时不会恢复中文输入法。
+第二条只认“当前选中的编辑器”：窗口重新激活时，IDE 可能先把焦点短暂交给背景编辑器再转回终端，那类事件不触发切换。终端等非编辑器组件不产生焦点事件，因此在 opencode 之类的 TUI 里输入不会被切换。
+
+已知限制：从编辑器切回终端时不会恢复之前的输入法，状态不跟踪。
 
 ## 配置
 
-在编辑器的普通模式下执行以下命令，或写入 `~/.ideavimrc` 后重启 IDE：
+在编辑器的普通模式下执行，或写入 `~/.ideavimrc` 后重启 IDE：
 
 ```vim
 set keep-english-in-normal
@@ -39,8 +36,6 @@ set keep-english-in-normal
 
 输入源 ID 可以用 [im-select](https://github.com/daipeihust/im-select) 查看，例如 `ABC` 对应 `com.apple.keylayout.ABC`。
 
-`set keep-english-in-normal-and-restore-in-insert` 仍然可写，但等价于 `set keep-english-in-normal`，本版本不提供回到插入模式时恢复输入法。
-
 ## 要求
 
 - macOS，并已启用 ABC 或 U.S. 英文键盘
@@ -48,21 +43,25 @@ set keep-english-in-normal
 
 ## 构建
 
-需要 JDK 21 与 Gradle 9（或使用仓库内的 wrapper）：
+需要 JDK 21 与 Gradle 9，仓库内带 wrapper：
 
 ```shell
 ./gradlew buildPlugin
 ```
 
-产物位于 `build/distributions/`。安装后在 IDE 的插件设置中选择 “Install Plugin from Disk”。
+目标平台按以下顺序确定：`-PidePath` 指定的本地 IDE → 常见安装位置 → 下载对应版本平台。指定本地 IDE 可以省掉下载：
+
+```shell
+./gradlew buildPlugin -PidePath="$HOME/Applications/IntelliJ IDEA.app"
+```
+
+产物位于 `build/distributions/`，在 IDE 的插件设置里用 “Install Plugin from Disk” 安装。
 
 本地调试：
 
 ```shell
 ./gradlew runIde
 ```
-
-构建脚本默认指向本机已安装的 IDE；换机器时修改 `build.gradle.kts` 里的 `local(...)` 路径。
 
 ## 许可
 
