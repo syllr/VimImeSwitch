@@ -1,29 +1,36 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-	kotlin("jvm") version "1.8.10"
-	id("org.jetbrains.intellij") version "1.17.2"
+	kotlin("jvm") version "2.2.20"
+	id("org.jetbrains.intellij.platform") version "2.20.0"
 }
 
-intellij {
-	pluginName.set("IdeaVimExtension")
-	version.set("2023.1.2")
-	plugins.add("IdeaVIM:2.7.0")
-	updateSinceUntilBuild.set(false)
-	downloadSources.set(true)
-}
-
-tasks.withType<KotlinCompile> {
-	kotlinOptions.jvmTarget = "17"
-}
-
-dependencies {
-	implementation(kotlin("stdlib"))
-}
-
-group = "io.github.hadix"
-version = "1.7.4"
+group = "io.github.syllr"
+version = "1.0.0"
 
 repositories {
 	mavenCentral()
+	intellijPlatform {
+		defaultRepositories()
+	}
+}
+
+dependencies {
+	intellijPlatform {
+		local("/Users/yutao/Applications/IntelliJ IDEA.app")
+		plugin("IdeaVIM", "2.48.1")
+	}
+}
+
+intellijPlatform {
+	pluginConfiguration {
+		id = "io.github.syllr.vimimeswitch"
+		name = "VimImeSwitch"
+		version = "1.0.0"
+		ideaVersion {
+			sinceBuild = "263"
+		}
+	}
+}
+
+kotlin {
+	jvmToolchain(21)
 }

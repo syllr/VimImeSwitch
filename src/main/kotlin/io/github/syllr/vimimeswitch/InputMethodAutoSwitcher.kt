@@ -3,44 +3,24 @@ package io.github.syllr.vimimeswitch
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandEvent
 import com.intellij.openapi.command.CommandListener
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
-import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.util.messages.MessageBusConnection
 import com.maddyhome.idea.vim.VimPlugin
-import com.maddyhome.idea.vim.command.CommandState
-import com.maddyhome.idea.vim.listener.VimInsertListener
-import org.apache.commons.lang3.CharUtils
-import org.apache.commons.lang3.StringUtils
+import io.github.syllr.vimimeswitch.mac.MacInputMethodSwitcher
+import org.apache.commons.lang3.SystemUtils
 import java.lang.Long.MAX_VALUE
-import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
-import kotlin.math.min
 
+/**
+ * 退出插入模式时把系统输入法切换回英文。
+ *
+ * 触发条件只有一条：IDE 执行了“退出插入模式”这类命令。不使用编辑器焦点事件，
+ * 因为焦点恢复并不代表用户想输入英文，会在窗口切回时误切换输入法。
+ */
 object InputMethodAutoSwitcher {
+
     private val VIM_INSERT_EXIT_MODE_ACTION = arrayOf("Escape", "Esc", "VimInsertExitModeAction")
-
-    private val EDITING_MODES = EnumSet.of(
-        CommandState.Mode.INSERT,
-        CommandState.Mode.REPLACE
-    )
-
-    @Volatile
-    var restoreInInsert: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                registerVimInsertListener()
-            } else {
-                unregisterVimInsertListener()
-            }
-        }
-
-    var contextAware: Boolean = false
 
     @Volatile
     var enabled: Boolean = false
@@ -48,71 +28,32 @@ object InputMethodAutoSwitcher {
 
     private var executor: ThreadPoolExecutor? = null
 
-    private val switcher = SystemInputMethodSwitcher()
-
     private var messageBusConnection: MessageBusConnection? = null
+
+    /** 首次触发时才读取配置并加载 native 库 */
+    private val switcher: MacInputMethodSwitcher by lazy {
+        val configured = VimPlugin.getVariableService()
+            .getGlobalVariableValue(INPUT_SOURCE_IN_NORMAL)?.asString()
+        if (configured != null) MacInputMethodSwitcher(configured) else MacInputMethodSwitcher()
+    }
 
     private val exitInsertModeListener = object : CommandListener {
         override fun beforeCommandFinished(commandEvent: CommandEvent) {
-            val commandName = commandEvent.commandName
-            if (StringUtils.isBlank(commandName)) {
+            val commandName = commandEvent.commandName ?: return
+            if (commandName.isBlank()) {
                 return
             }
             if (commandName in VIM_INSERT_EXIT_MODE_ACTION) {
-                executor?.execute { switcher.storeCurrentThenSwitchToEnglish() }
-                return
+                executor?.execute { switcher.switchToEnglish() }
             }
-        }
-    }
-
-    private val insertListener = object : VimInsertListener {
-        override fun insertModeStarted(editor: Editor) {
-            if (!editor.isInsertMode) {
-                return
-            }
-            if (contextAware) {
-                val text = editor.document.charsSequence
-                if (text.isEmpty()) {
-                    return
-                }
-                val pos = editor.caretModel.primaryCaret.offset
-                val closeChars = text.subSequence(
-                    max(pos - 1, 0),
-                    min(pos + 1, editor.document.textLength)
-                )
-                if (closeChars.any { it.isLetter() }) {
-                    if (closeChars.any { it.isLetter() && CharUtils.isAsciiPrintable(it) }) {
-                        return
-                    }
-                } else {
-                    val distantLetters = mutableListOf<Char>()
-                    // Check backward for previous letter
-                    for (i in (max(pos - 1, 0)) downTo 0) {
-                        val c = text[i]
-                        if (c.isLetter()) {
-                            distantLetters.add(c)
-                            break
-                        }
-                    }
-                    // Check forward for next letter
-                    for (i in pos until text.length) {
-                        val c = text[i]
-                        if (c.isLetter()) {
-                            distantLetters.add(c)
-                            break
-                        }
-                    }
-                    if (distantLetters.isEmpty() || distantLetters.any { CharUtils.isAsciiPrintable(it) }) {
-                        return
-                    }
-                }
-            }
-            executor?.execute { switcher.restore() }
         }
     }
 
     fun enable() {
         if (enabled) {
+            return
+        }
+        if (!SystemUtils.IS_OS_MAC) {
             return
         }
         enabled = true
@@ -121,8 +62,8 @@ object InputMethodAutoSwitcher {
                 1, 1,
                 MAX_VALUE, TimeUnit.DAYS,
                 ArrayBlockingQueue(10),
-                { r ->
-                    val thread = Thread(r, "ideavim_extension")
+                { runnable ->
+                    val thread = Thread(runnable, "vimimeswitch")
                     thread.isDaemon = true
                     thread.priority = Thread.MAX_PRIORITY
                     thread
@@ -130,60 +71,20 @@ object InputMethodAutoSwitcher {
                 ThreadPoolExecutor.DiscardPolicy()
             )
         }
-        registerExitInsertModeListener()
-        registerFocusChangeListener()
-        if (restoreInInsert) {
-            registerVimInsertListener()
-        }
-    }
-
-    private fun registerExitInsertModeListener() {
         messageBusConnection = ApplicationManager.getApplication().messageBus.connect()
         messageBusConnection?.subscribe(CommandListener.TOPIC, exitInsertModeListener)
     }
-
-    private fun unregisterExitInsertModeListener() {
-        messageBusConnection?.disconnect()
-    }
-
-    private fun registerVimInsertListener() {
-        VimPlugin.getChange().addInsertListener(insertListener)
-    }
-
-    private fun unregisterVimInsertListener() {
-        VimPlugin.getChange().removeInsertListener(insertListener)
-    }
-
-    private fun registerFocusChangeListener() {
-        val eventMulticaster =
-            EditorFactory.getInstance().eventMulticaster as? EditorEventMulticasterEx ?: return
-        eventMulticaster.addFocusChangeListener(focusListener) {}
-    }
-
-    private val focusListener = object : FocusChangeListener {
-
-        override fun focusLost(editor: Editor) {
-        }
-
-        override fun focusGained(editor: Editor) {
-            if (!enabled || !VimPlugin.isEnabled()) {
-                return
-            }
-            val state = CommandState.getInstance(editor)
-            if (state.mode !in EDITING_MODES) {
-                executor?.execute { switcher.switchToEnglish() }
-            }
-        }
-    }
-
 
     fun disable() {
         if (!enabled) {
             return
         }
-        unregisterVimInsertListener()
-        unregisterExitInsertModeListener()
+        messageBusConnection?.disconnect()
+        messageBusConnection = null
         executor?.shutdown()
+        executor = null
         enabled = false
     }
+
+    private const val INPUT_SOURCE_IN_NORMAL = "keep_input_source_in_normal"
 }

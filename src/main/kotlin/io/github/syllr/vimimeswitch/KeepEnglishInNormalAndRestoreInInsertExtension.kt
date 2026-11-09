@@ -7,34 +7,25 @@ import com.maddyhome.idea.vim.extension.VimExtension
 import com.maddyhome.idea.vim.options.OptionAccessScope
 import com.maddyhome.idea.vim.options.ToggleOption
 
-
 /**
- * @author hadix
- * @date 31/03/2017
+ * 兼容旧配置：`set keep-english-in-normal-and-restore-in-insert` 仍然可用，
+ * 但等价于 `set keep-english-in-normal`，本版本不提供回到插入模式时恢复输入法。
  */
 class KeepEnglishInNormalAndRestoreInInsertExtension : VimExtension {
 
-    override fun getName(): String {
-        return NAME
-    }
+	override fun getName(): String {
+		return NAME
+	}
 
-    override fun init() {
-        InputMethodAutoSwitcher.restoreInInsert = true
-        InputMethodAutoSwitcher.contextAware =
-            VimPlugin.getVariableService().getGlobalVariableValue(CONTEXT_WARE)?.asBoolean() ?: true
-        val optionGroup = VimPlugin.getOptionGroup()
-        val option =
-            (optionGroup.getOption(KeepEnglishInNormalExtension.NAME)
-                ?: throw exExceptionMessage("option not found")) as ToggleOption
-        optionGroup.setToggleOption(option, OptionAccessScope.GLOBAL(null))
-    }
+	override fun init() {
+		val optionGroup = VimPlugin.getOptionGroup()
+		val option = optionGroup.getOption(KeepEnglishInNormalExtension.NAME)
+			?: throw exExceptionMessage("option not found")
+		@Suppress("UNCHECKED_CAST")
+		optionGroup.setToggleOption(option as ToggleOption, OptionAccessScope.GLOBAL(null))
+	}
 
-    override fun dispose() {
-        InputMethodAutoSwitcher.restoreInInsert = false
-    }
-
-    companion object {
-        private const val CONTEXT_WARE = "context_aware"
-        private const val NAME = "keep-english-in-normal-and-restore-in-insert"
-    }
+	companion object {
+		private const val NAME = "keep-english-in-normal-and-restore-in-insert"
+	}
 }

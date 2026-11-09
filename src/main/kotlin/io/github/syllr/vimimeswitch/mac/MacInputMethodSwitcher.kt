@@ -1,59 +1,17 @@
 package io.github.syllr.vimimeswitch.mac
 
-import io.github.syllr.vimimeswitch.InputMethodSwitcher
-import io.github.syllr.vimimeswitch.mac.MacNative.getCurrentInputSourceID
-import io.github.syllr.vimimeswitch.mac.MacNative.switchInputSource
-import org.apache.commons.lang.StringUtils.EMPTY
-
 /**
- * @author hadix
- * @date 2018-12-23
+ * 通过 libinput-source-switcher 切换 macOS 输入源。
+ *
+ * 目标输入源在第一次使用时确定，之后每次只做一次 native 调用。
  */
-class MacInputMethodSwitcher(
-	private vararg val english: String = ENGLISH_INPUT_SOURCE_CANDIDATE,
-	private var nonEnglish: String?
-) : InputMethodSwitcher {
+class MacInputMethodSwitcher(private val english: String = KEY_LAYOUT_ABC) {
 
-	override fun storeCurrentThenSwitchToEnglish() {
-		val current = getCurrentInputSourceID()
-		if (ENGLISH_INPUT_SOURCE == current) {
-			return
-		}
-		if (nonEnglish == null) {
-			this.nonEnglish = current
-		}
-		switchToEnglish()
-	}
+    fun switchToEnglish() {
+        MacNative.switchInputSource(english)
+    }
 
-	override fun switchToEnglish() {
-		if (ENGLISH_INPUT_SOURCE.isNotBlank()) {
-			if (switchInputSource(ENGLISH_INPUT_SOURCE) < 0) {
-				// 系统英文输入法可能发生变更，导致无法切换到记录到英文输入法
-				ENGLISH_INPUT_SOURCE = EMPTY
-			}
-		} else {
-			for (englishInputSource in english) {
-				if (switchInputSource(englishInputSource) < 0) {
-					continue
-				} else {
-					ENGLISH_INPUT_SOURCE = englishInputSource
-					break
-				}
-			}
-		}
-	}
-
-	override fun restore() {
-		val nonEnglish = this.nonEnglish ?: return
-		switchInputSource(nonEnglish)
-	}
-
-	@Suppress("SpellCheckingInspection")
-	companion object {
-		private const val KEY_LAYOUT_US = "com.apple.keylayout.US"
-		private const val KEY_LAYOUT_ABC = "com.apple.keylayout.ABC"
-		private const val KEY_LAYOUT_UNICODEHEX = "com.apple.keylayout.UnicodeHexInput"
-		private val ENGLISH_INPUT_SOURCE_CANDIDATE = arrayOf(KEY_LAYOUT_UNICODEHEX, KEY_LAYOUT_ABC, KEY_LAYOUT_US)
-		private var ENGLISH_INPUT_SOURCE: String = ""
-	}
+    companion object {
+        const val KEY_LAYOUT_ABC = "com.apple.keylayout.ABC"
+    }
 }

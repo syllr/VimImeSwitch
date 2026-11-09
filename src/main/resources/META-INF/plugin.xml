@@ -7,227 +7,40 @@
     </vendor>
 
     <description><![CDATA[
-      <p>IdeaVim 的扩展：从插入模式退回到普通模式时，自动把系统输入法切回英文。</p>
-      <p>本插件基于 <a href="https://github.com/hadix-lin/ideavim_extension">hadix-lin/ideavim_extension</a>（Apache-2.0）继续维护，
-      主要变化：修正“窗口失去焦点再切回时被误切成英文”的问题；插件 ID 与包名独立；构建链迁移至 IntelliJ Platform Gradle Plugin 2.x。</p>
+      <p>IdeaVim 的扩展：从插入模式退回到普通模式时，自动把系统输入法切回英文。仅支持 macOS。</p>
+      <p>本插件基于 <a href="https://github.com/hadix-lin/ideavim_extension">hadix-lin/ideavim_extension</a>（Apache-2.0）继续维护。</p>
 
       <h3>功能</h3>
       <ul>
         <li>退出插入模式时切换到英文输入法</li>
-        <li>可选：回到插入模式时恢复原来的输入法</li>
-        <li>可分别指定普通模式与插入模式使用的输入源（macOS）</li>
+        <li>切回窗口、恢复焦点时不会误切换输入法</li>
+        <li>可指定普通模式使用的输入源</li>
       </ul>
 
       <h3>用法</h3>
       <p>在编辑器的普通模式下执行，或写入 <code>~/.ideavimrc</code> 后重启 IDE：</p>
+      <pre>set keep-english-in-normal</pre>
+      <p>用 <code>set nokeep-english-in-normal</code> 关闭。输入源可通过变量指定：</p>
+      <pre>let keep_input_source_in_normal="com.apple.keylayout.ABC"</pre>
+
+      <h3>要求</h3>
       <ul>
-        <li><code>set keep-english-in-normal</code>：开启自动切换</li>
-        <li><code>set keep-english-in-normal-and-restore-in-insert</code>：回到插入模式时恢复输入法</li>
-        <li><code>set nokeep-english-in-normal</code>：关闭</li>
+        <li>macOS，且已启用 ABC 或 U.S. 英文键盘</li>
+        <li>IdeaVim</li>
       </ul>
-
-      <h3>平台</h3>
-      <p>在 macOS 上验证。Windows 需要启用美式英文键盘；Linux 需要 fcitx 或 ibus 并能调用 <code>fcitx-remote</code> / <code>ibus</code>。
-      其他平台未做验证，欢迎反馈。</p>
-
-      <h3>Requires</h3>
-      <p>IdeaVim. Switching the system input source to English when leaving insert mode, with an optional restore on re-entering insert mode.</p>
+      <p>Switch the system input source back to English when leaving insert mode. Requires IdeaVim and macOS.</p>
     ]]></description>
 
-    <change-notes><![CDATA[
-      <p>1.7.4<br/>
-        Fixed the problem that the input method couldn't be switch automatically due to install the Chinese language pack mentioned in [issue] <a href="https://github.com/hadix-lin/ideavim_extension/issues/121">#121</a>
-      <p>1.7.3<br/>
-        Compatible with "IdeaVIM 2.7.0"<br/>
-      <p>1.7.0<br/>
-      <pre>
-       support using "Rime ASCII" mode to switch input method
-
-       require set `let rime_ascii = 1` in ideavim.rc.
-       - fcitx5 and fcitx5-rime version must follow：
-            - `fcitx5 > 5.0.20`
-            - `fcitx5-rime > 5.0.8`
-      </pre>
-      <p>1.6.12<br/>
-        Fix the problem of being unable to restore the input method due to configuration order
-      <p>1.6.11<br/>
-        Fallback to editor focus handling behavior of 1.6.8
-      <p>1.6.10<br/>
-        default open focus auto
-      <p>1.6.9<br/>
-        merged PR<a href="https://github.com/hadix-lin/ideavim_extension/pull/113">#113</a>, restore the input method when the current editor loses focus
-      <p>1.6.8<br/>
-        fix <a href="https://github.com/hadix-lin/ideavim_extension/issues/111">#111</a><br/>
-      <p>1.6.7<br/>
-        Compatible with IdeaVIM 2.0.0, Idea-IC 2022.3.1+<br/>
-      <p>1.6.6<br/>
-        Compatible with IdeaVIM 2.0.0, Idea-IC 2022.3+<br/>
-        <code>context_aware</code> is set to 0 by default, avoiding unstable input method switching behaviors for users who are unclear about usage
-      <p>1.6.5<br/>
-        Fix <a href="https://github.com/hadix-lin/ideavim_extension/issues/96">#96</a><br/>
-        Use an independent thread pool to perform input method switching to avoid IDE lag
-      <p>1.6.4<br/>
-        Fix <a href="https://github.com/hadix-lin/ideavim_extension/issues/95">#95</a><br/>
-        Eliminate the use of independent thread pools, use ApplicationManager to perform input method switching action, and reduce resource consumption
-      <p>1.6.3<br/>
-        Fix the problem of switching input methods in unexpected situations
-      <p>1.6.2<br/>
-        Support for controlling plugin behavior in ideavim.rc via the following three variables:<br/>
-        <code>let keep_input_source_in_insert=[input source id]</code> set input method for non-English used in insert mode<br/>
-        <code>let keep_input_source_in_normal=[input source id]</code> set input method for English used in normal mode<br/>
-        Note: The above two variables are only valid in windows and macOS<br/>
-        <code>let context_aware=1</code> When entering insert mode, judge whether to restore the input method according to the context, 0 to disable, 1 to enable<br/>
-        Note: Only meaningful <code>when set keep-english-in-normal-and-restore-in-insert</code><br/>
-      <p>1.6.1<br/>
-        Fix Issue <a href="https://github.com/hadix-lin/ideavim_extension/issues/87">#87</a><br/>
-      <p>1.6.0<br/>
-        When returning to insert mode, decide whether to restore the input method according to whether the character at the current input position is ASCII or not<br/>
-      </p>
-      <p>1.5.2<br/>
-        Compatible with "IdeaVIM 1.10.0"<br/>
-      </p>
-      <p>1.5.0<br/>
-        Support IBUS input engine under Linux, fix <a href="https://github.com/hadix-lin/ideavim_extension/issues/76">#76</a><br/>
-      </p>
-      <p>1.4.12<br/>
-        Fix npe Issue <a href="https://github.com/hadix-lin/ideavim_extension/issues/72">#72</a> in windows<br/>
-      </p>
-      <p>1.4.11<br/>
-        In macOS, the input method in normal mode can be set by <b>keep_input_source_in_normal</b>,but it is only supported in <code>~/.ideavimrc`</code>.<br/>
-        For example, <code>let keep_input_source_in_normal="com .apple.keylayout.ABC"</code>
-      </p>
-      <p>1.4.10<br/>
-        Compatible with "IdeaVIM 0.67"<br/>
-      </p>
-      <p>1.4.9<br/>
-        support apple silicon<br/>
-      </p>
-      <p>1.4.8<br/>
-        Compatible with "IdeaVIM 0.61"<br/>
-      </p>
-      <p>1.4.7<br/>
-        Support Unicode Hex Input Method in MacOS.<br/>
-      </p>
-      <p>1.4.6<br/>
-        Support fcitx5.<br/>
-      </p>
-      <p>1.4.5<br/>
-        Compatible with "IdeaVIM 0.56" and "Intellij IDEA 2020.1"<br/>
-      </p>
-      <p>1.4.4<br/>
-        Fix the [issue] <a href="https://github.com/hadix-lin/ideavim_extension/issues/48">#48</a>  caused by incorrect input method state saved when the editor regains focus<br/>
-      </p>
-      <p>1.4.3<br/>
-        Fixed the unexpected input method restoration <a href=https://github.com/hadix-lin/ideavim_extension/issues/44>issue</a><br/>
-      </p>
-      <p>1.4.2<br/>
-        1.Determine whether to restore the input method based on the state of the editor after the vim instruction is executed<br/>
-        2.Fix the problem of recovering input method in some cases<br/>
-      </p>
-      <p>1.4.1<br/>
-        fix the problem that some insert commands cannot restore input method<br/>
-      </p>
-      <p>1.4.0<br/>
-        support IdeaVim 0.54, keep consistent compatibility strategy with IdeaVim starting with this version.<br/>
-      </p>
-      <br/>
-
-      <p>1.7.4<br/>
-        修正[issue] <a href="https://github.com/hadix-lin/ideavim_extension/issues/121">#121</a>中提到的由于安装中文语言包导致无法自动切换输入法的问题
-      <p>1.7.3<br/>
-        兼容"IdeaVIM 2.7.0"<br/>
-      <p>1.7.0<br/>
-      <pre>
-       支持 Linux 下的 fcitx5-rime 使用 Rime ASCII 模式切换输入法。
-       需要在ideavim.rc中设置`let rime_ascii = 1`
-       - fcitx5 和 fcitx5-rime 版本要求：
-            - `fcitx5 > 5.0.20`
-            - `fcitx5-rime > 5.0.8`
-      </pre>
-      <p>1.6.12<br/>
-        修正由于配置顺序导致无法恢复输入法的问题
-      <p>1.6.11<br/>
-        回退到1.6.8的编辑器焦点处理行为
-      <p>1.6.10<br/>
-        默认激活编辑器焦点事件切换输入法功能
-      <p>1.6.9<br/>
-        合并PR<a href="https://github.com/hadix-lin/ideavim_extension/pull/113">#113</a>，当前编辑器失去焦点时恢复输入法
-      <p>1.6.8<br/>
-        修正问题 <a href="https://github.com/hadix-lin/ideavim_extension/issues/111">#111</a><br/>
-      <p>1.6.7<br/>
-        兼容IdeaVIM 2.0.0，Idea-IC 2022.3.1+<br/>
-      <p>1.6.6<br/>
-        兼容IdeaVIM 2.0.0，Idea-IC 2022.3+<br/>
-        context_aware默认设置为0，对不清楚用法对用户避免产生不稳定的输入发切换行为
-      <p>1.6.5<br/>
-        修正问题<a href="https://github.com/hadix-lin/ideavim_extension/issues/96">#96</a><br/>
-        使用独立线程池执行输入法切换动作，避免IDE卡顿
-      <p>1.6.4<br/>
-        修正问题<a href="https://github.com/hadix-lin/ideavim_extension/issues/95">#95</a><br/>
-        去除对独立线程池的使用，改为使用应用管理器执行输入法切换动作，减少资源消耗
-      <p>1.6.3<br/>
-        修正非预期情况下切换输入法的问题
-      <p>1.6.2<br/>
-        支持在ideavim.rc中通过以下三个变量控制插件行为：<br/>
-        <code>let keep_input_source_in_insert=[input source id]</code> 设置insert模式使用到非英文输入法<br/>
-        <code>let keep_input_source_in_normal=[input source id]</code> 设置normal模式使用到输入英文到输入法<br/>
-        注意：上面两个变量仅在windows和macOS中有效<br/>
-        <code>let context_aware=1</code> 进入insert模式时根据上下文判断是否恢复输入法，0禁用，1启用<br/>
-        注意：仅在<code>set keep-english-in-normal-and-restore-in-insert</code>时有意义<br/>
-      <p>1.6.1<br/>
-        修正<a href="https://github.com/hadix-lin/ideavim_extension/issues/87">#87</a><br/>
-      <p>1.6.0<br/>
-        返回insert模式时，根据当前输入位置的字符是否为ASCII来决策是否恢复输入法<br/>
-      </p>
-      <p>1.5.2<br/>
-        兼容"IdeaVIM 1.10.0"<br/>
-      </p>
-      <p>1.5.0<br/>
-        支持Linux下的IBUS输入引擎，解决<a href="https://github.com/hadix-lin/ideavim_extension/issues/76">#76</a><br/>
-      </p>
-      <p>1.4.12<br/>
-        修正windows中的npe问题<a href="https://github.com/hadix-lin/ideavim_extension/issues/72">#72</a><br/>
-      </p>
-      <p>1.4.11<br/>
-        在macOS中,normal模式的输入法可以通过<b>keep_input_source_in_normal</b>来设置,但仅支持在<code>~/.ideavimrc`</code>中使用.<br/>
-        例如<code>let keep_input_source_in_normal="com.apple.keylayout.ABC"</code><br/>
-      </p>
-      <p>1.4.10<br/>
-        兼容"IdeaVIM 0.67"<br/>
-      </p>
-      <p>1.4.9<br/>
-        支持apple silicon<br/>
-      </p>
-      <p>1.4.8<br/>
-        兼容"IdeaVIM 0.61"<br/>
-      </p>
-      <p>1.4.7<br/>
-        在MacOS下支持,Unicode16进制输入法<br/>
-      </p>
-      <p>1.4.6<br/>
-        支持fcitx5<br/>
-      </p>
-      <p>1.4.5<br/>
-        兼容"IdeaVim 0.56"和"Intellij IDEA 2020.1"<br/>
-      </p>
-      <p>1.4.4<br/>
-        修正编辑器重新获取焦点时保存的输入法状态不正确的<a href="https://github.com/hadix-lin/ideavim_extension/issues/48">问题</a><br/>
-      </p>
-      <p>1.4.3<br/>
-        修正非预期的输入法恢复<a href=https://github.com/hadix-lin/ideavim_extension/issues/44>问题</a><br/>
-      </p>
-      <p>1.4.2<br/>
-        1.根据vim指令执行后编辑器状态来判断是否需要恢复输入法<br/>
-        2.修正某些情况下恢复输入法出错的问题<br/>
-      </p>
-      <p>1.4.1<br/>
-        修复某些插入命令无法恢复输入法的问题<br/>
-      </p>
-      <p>1.4.0<br/>
-        支持IdeaVim 0.54, 从这个版本开始兼容性策略与IdeaVim保持一致<br/>
-      </p>
-    ]]>
-    </change-notes>
+        <change-notes><![CDATA[
+      <p>1.0.0</p>
+      <ul>
+        <li>基于 hadix-lin/ideavim_extension 1.7.4 分叉并独立发布</li>
+        <li>修正：窗口失去焦点后再切回，会错误地把输入法切成英文</li>
+        <li>插件 ID 改为 io.github.syllr.vimimeswitch，包名同步调整</li>
+        <li>仅保留 macOS 支持</li>
+        <li>构建链迁移至 IntelliJ Platform Gradle Plugin 2.x</li>
+      </ul>
+    ]]></change-notes>
 
     <idea-version since-build="263"/>
 
