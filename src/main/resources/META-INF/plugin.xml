@@ -45,6 +45,7 @@
     <idea-version since-build="263"/>
 
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.jna</depends>
     <depends>IdeaVIM</depends>
 
     <extensions defaultExtensionNs="IdeaVIM">

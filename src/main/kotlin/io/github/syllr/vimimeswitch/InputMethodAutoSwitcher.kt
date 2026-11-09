@@ -33,7 +33,7 @@ object InputMethodAutoSwitcher {
     /** 首次触发时才读取配置并加载 native 库 */
     private val switcher: MacInputMethodSwitcher by lazy {
         val configured = VimPlugin.getVariableService()
-            .getGlobalVariableValue(INPUT_SOURCE_IN_NORMAL)?.asString()
+            .getGlobalVariableValue(INPUT_SOURCE_IN_NORMAL)?.toVimString()?.value
         if (configured != null) MacInputMethodSwitcher(configured) else MacInputMethodSwitcher()
     }
 

@@ -87,3 +87,6 @@ fabric.properties
 
 # gradle
 .gradle/
+
+# IntelliJ Platform Gradle Plugin 缓存
+.intellijPlatform/

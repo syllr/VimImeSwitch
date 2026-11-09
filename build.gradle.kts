@@ -1,5 +1,5 @@
 plugins {
-	kotlin("jvm") version "2.2.20"
+	kotlin("jvm") version "2.4.0"
 	id("org.jetbrains.intellij.platform") version "2.20.0"
 }
 
@@ -16,6 +16,7 @@ repositories {
 dependencies {
 	intellijPlatform {
 		local("/Users/yutao/Applications/IntelliJ IDEA.app")
+		bundledPlugin("com.intellij.modules.jna")
 		plugin("IdeaVIM", "2.48.1")
 	}
 }
