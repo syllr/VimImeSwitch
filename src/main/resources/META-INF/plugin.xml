@@ -32,7 +32,7 @@
     ]]></description>
 
         <change-notes><![CDATA[
-      <p>0.0.1</p>
+      <p>0.0.2</p>
       <ul>
         <li>首个预发布版本，基于 hadix-lin/ideavim_extension 1.7.4 分叉</li>
         <li>修正：窗口失去焦点后再切回，会错误地把输入法切成英文</li>
