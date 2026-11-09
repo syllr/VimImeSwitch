@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.syllr"
-version = "1.0.0"
+version = "0.0.1"
 
 repositories {
 	mavenCentral()
@@ -25,7 +25,7 @@ intellijPlatform {
 	pluginConfiguration {
 		id = "io.github.syllr.vimimeswitch"
 		name = "VimImeSwitch"
-		version = "1.0.0"
+		version = "0.0.1"
 		ideaVersion {
 			sinceBuild = "263"
 		}

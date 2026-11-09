@@ -32,9 +32,9 @@
     ]]></description>
 
         <change-notes><![CDATA[
-      <p>1.0.0</p>
+      <p>0.0.1</p>
       <ul>
-        <li>基于 hadix-lin/ideavim_extension 1.7.4 分叉并独立发布</li>
+        <li>首个预发布版本，基于 hadix-lin/ideavim_extension 1.7.4 分叉</li>
         <li>修正：窗口失去焦点后再切回，会错误地把输入法切成英文</li>
         <li>插件 ID 改为 io.github.syllr.vimimeswitch，包名同步调整</li>
         <li>仅保留 macOS 支持</li>
