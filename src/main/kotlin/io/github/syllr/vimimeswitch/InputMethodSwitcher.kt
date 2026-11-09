@@ -1,4 +1,4 @@
-package io.github.hadixlin.iss
+package io.github.syllr.vimimeswitch
 
 /**
  *

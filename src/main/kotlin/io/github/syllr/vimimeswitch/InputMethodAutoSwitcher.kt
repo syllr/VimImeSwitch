@@ -1,4 +1,4 @@
-package io.github.hadixlin.iss
+package io.github.syllr.vimimeswitch
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandEvent

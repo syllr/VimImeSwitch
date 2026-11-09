@@ -1,8 +1,8 @@
-package io.github.hadixlin.iss.win
+package io.github.syllr.vimimeswitch.win
 
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
-import io.github.hadixlin.iss.InputMethodSwitcher
+import io.github.syllr.vimimeswitch.InputMethodSwitcher
 
 class WinInputMethodSwitcher(
 	english: Long?, private var nonEnglish: Long?

@@ -1,4 +1,4 @@
-package io.github.hadixlin.iss
+package io.github.syllr.vimimeswitch
 
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.api.setToggleOption

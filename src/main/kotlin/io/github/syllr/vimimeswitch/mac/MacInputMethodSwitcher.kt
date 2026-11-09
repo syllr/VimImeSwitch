@@ -1,8 +1,8 @@
-package io.github.hadixlin.iss.mac
+package io.github.syllr.vimimeswitch.mac
 
-import io.github.hadixlin.iss.InputMethodSwitcher
-import io.github.hadixlin.iss.mac.MacNative.getCurrentInputSourceID
-import io.github.hadixlin.iss.mac.MacNative.switchInputSource
+import io.github.syllr.vimimeswitch.InputMethodSwitcher
+import io.github.syllr.vimimeswitch.mac.MacNative.getCurrentInputSourceID
+import io.github.syllr.vimimeswitch.mac.MacNative.switchInputSource
 import org.apache.commons.lang.StringUtils.EMPTY
 
 /**

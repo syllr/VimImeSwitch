@@ -1,6 +1,6 @@
-package io.github.hadixlin.iss.lin
+package io.github.syllr.vimimeswitch.lin
 
-import io.github.hadixlin.iss.InputMethodSwitcher
+import io.github.syllr.vimimeswitch.InputMethodSwitcher
 import java.util.*
 import java.util.concurrent.TimeUnit
 

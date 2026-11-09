@@ -1,4 +1,4 @@
-package io.github.hadixlin.iss.mac
+package io.github.syllr.vimimeswitch.mac
 
 import com.sun.jna.Native
 

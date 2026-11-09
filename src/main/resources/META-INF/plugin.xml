@@ -1,81 +1,37 @@
 <idea-plugin>
-    <id>IdeaVimExtension</id>
-    <name>IdeaVimExtension</name>
+    <id>io.github.syllr.vimimeswitch</id>
+    <name>VimImeSwitch</name>
 
-    <vendor
-            email="hadix.lin@gmail.com"
-            url="https://github.com/hadix-lin/ideavim_extension">
-        hadix
+    <vendor email="shenyuanlaolarou@gmail.com" url="https://github.com/syllr/ideavim_extension">
+        syllr
     </vendor>
 
     <description><![CDATA[
-      <p>The plugin is an extension of &#39;IdeaVim&#39; , can switch to English input method in normal mode and restore input method in insert mode.</p>
-      <h3>How To Enable:</h3>
-      <p>auto-switch feature is disabled by default</p>
-      <p>
-        enable the feature with the commands below, input in normal mode:
-      <ul>
-        <li><code>:set keep-english-in-normal</code> enable auto-switch feature</li>
-        <li><code>:set keep-english-in-normal-and-restore-in-insert</code> restore input method when return insert mode.</li>
-        <li><code>:set nokeep-english-in-normal-and-restore-in-insert</code> keep auto-switch feature, but doesn't restore input method when return insert mode</li>
-        <li><code>:set nokeep-english-in-normal</code> disable auto-switch feature</li>
-      </ul>
-      You can also add `set keep-english-in-normal[-and-restore-in-insert]` to the `~/.ideavimrc` file and restart IDE to enable the feature.
-      <br/>
+      <p>IdeaVim 的扩展：从插入模式退回到普通模式时，自动把系统输入法切回英文。</p>
+      <p>本插件基于 <a href="https://github.com/hadix-lin/ideavim_extension">hadix-lin/ideavim_extension</a>（Apache-2.0）继续维护，
+      主要变化：修正“窗口失去焦点再切回时被误切成英文”的问题；插件 ID 与包名独立；构建链迁移至 IntelliJ Platform Gradle Plugin 2.x。</p>
 
-      </p>
-      <h3>Notice:</h3>
-      <p>The plugin support MacOS and Windows and Linux(with fcitx)</p>
-      <p>
-      MacOS need enable en_US OR ABC keyboard<br/>
-      Windows need enable en_US keyboard<br/>
-      Linux need fcitx-remote, or ibus<br/>
-      </p>
-      <p>
-      Support for controlling plugin behavior in ideavim.rc via the following three variables:<br/>
-      <code>let keep_input_source_in_insert=[input source id]</code> set input method for non-English used in insert mode<br/>
-      <code>let keep_input_source_in_normal=[input source id]</code> set input method for English used in normal mode<br/>
-      Note: The above two variables are only valid in windows and macOS<br/>
-      <code>let context_aware=1</code> When entering insert mode, judge whether to restore the input method according to the context, 0 to disable, 1 to enable<br/>
-      Note: Only meaningful <code>when set keep-english-in-normal-and-restore-in-insert</code><br/>
-      </p>
-      <p><a href="https://github.com/hadix-lin/ideavim_extension">GitHub Repository</a>Source and Feedback</p>
-      <br/>
-      <p>为IdeaVim插件增加自动切换为英文输入法的功能<br></p>
-      <p>输入法自动切换功能不会默认启用</p>
-      <p>
-        编辑器中normal模式下输入输入下面的指令以启用自动切换输入法功能：
+      <h3>功能</h3>
       <ul>
-        <li><code>:set keep-english-in-normal</code> 开启输入法自动切换功能</li>
-        <li><code>:set keep-english-in-normal-and-restore-in-insert</code> 回到insert模式时恢复输入法</li>
-        <li><code>:set nokeep-english-in-normal-and-restore-in-insert</code> 保留输入法自动切换功能，但是回到insert模式不恢复输入法</li>
-        <li><code>:set nokeep-english-in-normal</code> 关闭输入法自动切换功能</li>
+        <li>退出插入模式时切换到英文输入法</li>
+        <li>可选：回到插入模式时恢复原来的输入法</li>
+        <li>可分别指定普通模式与插入模式使用的输入源（macOS）</li>
       </ul>
-      也可以通过将`set keep-english-in-normal[-and-restore-in-insert]`加入到`~/.ideavimrc`文件中并重启IDE来启用插件功能。
-      </p>
-      <h3>注意:支持MacOS和Windows, 通过fcitx-remote支持Linux</h3>
-      <p>
-      MacOS需要开启英语美国键盘或ABC键盘<br/>
-      Windows需要开启英语美国键盘<br/>
-      Linux需要使用fcitx输入法，通过fcitx-remote切换，或使用ibus输入引擎<br/>
-      </p>
-      <p>
-      支持在ideavim.rc中通过以下三个变量控制插件行为：<br/>
-      <code>let keep_input_source_in_insert=[input source id]</code> 设置insert模式使用的非英文输入法<br/>
-      <code>let keep_input_source_in_normal=[input source id]</code> 设置normal模式使用的输入英文到输入法<br/>
-      注意：上面两个变量仅在windows和macOS中有效<br/>
-      <code>let context_aware=1</code> 进入insert模式时根据上下文判断是否恢复输入法，0禁用，1启用<br/>
-      注意：仅在<code>set keep-english-in-normal-and-restore-in-insert</code>时有意义<br/>
-      </p>
-      <p>
-      <pre>
-      Linux 下的 fcitx5-rime 可以设置 `let rime_ascii = 1` 在 normal 模式使用 Rime 的 ASCII Mode。
-      版本要求：
-       - `fcitx5 > 5.0.20`
-       - `fcitx5-rime > 5.0.8`
-      </pre>
-      </p>
-      <p><a href="https://github.com/hadix-lin/ideavim_extension">GitHub Repository</a>: 源码和问题反馈 </p>
+
+      <h3>用法</h3>
+      <p>在编辑器的普通模式下执行，或写入 <code>~/.ideavimrc</code> 后重启 IDE：</p>
+      <ul>
+        <li><code>set keep-english-in-normal</code>：开启自动切换</li>
+        <li><code>set keep-english-in-normal-and-restore-in-insert</code>：回到插入模式时恢复输入法</li>
+        <li><code>set nokeep-english-in-normal</code>：关闭</li>
+      </ul>
+
+      <h3>平台</h3>
+      <p>在 macOS 上验证。Windows 需要启用美式英文键盘；Linux 需要 fcitx 或 ibus 并能调用 <code>fcitx-remote</code> / <code>ibus</code>。
+      其他平台未做验证，欢迎反馈。</p>
+
+      <h3>Requires</h3>
+      <p>IdeaVim. Switching the system input source to English when leaving insert mode, with an optional restore on re-entering insert mode.</p>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -273,15 +229,15 @@
     ]]>
     </change-notes>
 
-    <idea-version since-build="231"/>
+    <idea-version since-build="263"/>
 
     <depends>com.intellij.modules.lang</depends>
     <depends>IdeaVIM</depends>
 
     <extensions defaultExtensionNs="IdeaVIM">
         <vimExtension
-                implementation="io.github.hadixlin.iss.KeepEnglishInNormalExtension"/>
+                implementation="io.github.syllr.vimimeswitch.KeepEnglishInNormalExtension"/>
         <vimExtension
-                implementation="io.github.hadixlin.iss.KeepEnglishInNormalAndRestoreInInsertExtension"/>
+                implementation="io.github.syllr.vimimeswitch.KeepEnglishInNormalAndRestoreInInsertExtension"/>
     </extensions>
 </idea-plugin>

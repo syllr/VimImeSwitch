@@ -1,0 +1,19 @@
+VimImeSwitch
+Copyright 2026 syllr
+
+This product is a derivative work of IdeaVimExtension
+(https://github.com/hadix-lin/ideavim_extension), Copyright 2017-2024 hadix,
+licensed under the Apache License, Version 2.0.
+
+Modifications made in this derivative work:
+- removed the editor focus listener that switched the input source to English
+  whenever an editor in normal mode regained focus
+- renamed the plugin identifier and Kotlin packages
+- migrated the build to the IntelliJ Platform Gradle Plugin 2.x
+- revised documentation
+
+The bundled macOS library resources/darwin{,-aarch64}/libinput-source-switcher.dylib
+originates from the upstream project distribution.
+
+Portions of the Linux integration are derived from
+https://github.com/vovkasm/input-source-switcher, licensed under the MIT License.

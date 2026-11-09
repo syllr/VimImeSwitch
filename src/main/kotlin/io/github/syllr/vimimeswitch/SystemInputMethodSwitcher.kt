@@ -1,11 +1,11 @@
-package io.github.hadixlin.iss
+package io.github.syllr.vimimeswitch
 
 import com.maddyhome.idea.vim.VimPlugin
-import io.github.hadixlin.iss.lin.LinFcitx5RimeSwitcher
-import io.github.hadixlin.iss.lin.LinFcitxRemoteSwitcher
-import io.github.hadixlin.iss.lin.LinuxIbusSwitcher
-import io.github.hadixlin.iss.mac.MacInputMethodSwitcher
-import io.github.hadixlin.iss.win.WinInputMethodSwitcher
+import io.github.syllr.vimimeswitch.lin.LinFcitx5RimeSwitcher
+import io.github.syllr.vimimeswitch.lin.LinFcitxRemoteSwitcher
+import io.github.syllr.vimimeswitch.lin.LinuxIbusSwitcher
+import io.github.syllr.vimimeswitch.mac.MacInputMethodSwitcher
+import io.github.syllr.vimimeswitch.win.WinInputMethodSwitcher
 import org.apache.commons.lang3.SystemUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
