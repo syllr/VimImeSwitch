@@ -1,19 +1,19 @@
 package io.github.syllr.vimimeswitch
 
-import com.intellij.openapi.application.ApplicationActivationListener
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandEvent
 import com.intellij.openapi.command.CommandListener
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.ex.EditorEventMulticasterEx
-import com.intellij.openapi.editor.ex.FocusChangeListener
+import com.intellij.openapi.editor.event.EditorFactoryEvent
+import com.intellij.openapi.editor.event.EditorFactoryListener
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.IdeFrame
+import com.intellij.openapi.util.Key
 import com.intellij.util.messages.MessageBusConnection
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.command.CommandState
 import io.github.syllr.vimimeswitch.mac.MacInputMethodSwitcher
+import java.awt.event.FocusEvent
 import java.lang.Long.MAX_VALUE
 import java.util.EnumSet
 import java.util.concurrent.ArrayBlockingQueue
@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit
  * 1. 退出插入模式（编辑器里按 Esc 等）；
  * 2. 焦点移进处于普通模式的编辑器，此时用户接下来要敲的是 vim 命令。
  *
- * 第 2 条不处理“窗口重新获得焦点”的场景：那时平台会先发 applicationActivated，
- * 随后的编辑器焦点事件只是焦点恢复，不代表用户要输入英文。
+ * 第 2 条不看“窗口是否刚激活”，而是看焦点事件本身的成因：
+ * 窗口重新获得焦点时，AWT 恢复组件焦点用的就是 [FocusEvent.Cause.ACTIVATION]
+ * （见 DefaultKeyboardFocusManager#processWindowFocusEvent），这类事件直接忽略；
+ * 用户点击、Tab 切换等成因的事件才视为“用户主动进入编辑器”。
  */
 @Suppress("DEPRECATION")
 object InputMethodAutoSwitcher {
@@ -36,21 +38,17 @@ object InputMethodAutoSwitcher {
 
     private val EDITING_MODES = EnumSet.of(CommandState.Mode.INSERT, CommandState.Mode.REPLACE)
 
-    /** 窗口激活后的静默窗口，用于忽略随之而来的焦点恢复事件 */
-    private const val ACTIVATION_MUTE_NANOS = 300_000_000L
+    private val FOCUS_LISTENER_KEY = Key.create<java.awt.event.FocusListener>("vimimeswitch.focus")
 
     @Volatile
     var enabled: Boolean = false
         private set
 
-    @Volatile
-    private var muteFocusUntil: Long = 0L
-
     private var executor: ThreadPoolExecutor? = null
 
     private var messageBusConnection: MessageBusConnection? = null
 
-    private var focusListenerDisposable: com.intellij.openapi.Disposable? = null
+    private var editorFactoryDisposable: com.intellij.openapi.Disposable? = null
 
     /** 首次触发时才读取配置并加载 native 库 */
     private val switcher: MacInputMethodSwitcher by lazy {
@@ -71,27 +69,13 @@ object InputMethodAutoSwitcher {
         }
     }
 
-    private val activationListener = object : ApplicationActivationListener {
-        override fun applicationActivated(ideFrame: IdeFrame) {
-            muteFocusUntil = System.nanoTime() + ACTIVATION_MUTE_NANOS
-        }
-    }
-
-    private val focusListener = object : FocusChangeListener {
-        override fun focusLost(editor: Editor) {
+    private val editorFactoryListener = object : EditorFactoryListener {
+        override fun editorCreated(event: EditorFactoryEvent) {
+            attach(event.editor)
         }
 
-        override fun focusGained(editor: Editor) {
-            if (!enabled || !VimPlugin.isEnabled()) {
-                return
-            }
-            if (System.nanoTime() < muteFocusUntil) {
-                return
-            }
-            if (CommandState.getInstance(editor).mode in EDITING_MODES) {
-                return
-            }
-            executor?.execute { switcher.switchToEnglish() }
+        override fun editorReleased(event: EditorFactoryEvent) {
+            detach(event.editor)
         }
     }
 
@@ -119,8 +103,12 @@ object InputMethodAutoSwitcher {
         }
         messageBusConnection = ApplicationManager.getApplication().messageBus.connect()
         messageBusConnection?.subscribe(CommandListener.TOPIC, exitInsertModeListener)
-        messageBusConnection?.subscribe(ApplicationActivationListener.TOPIC, activationListener)
-        registerFocusChangeListener()
+
+        val factory = EditorFactory.getInstance()
+        factory.allEditors.forEach { attach(it) }
+        val disposable = Disposer.newDisposable("vimimeswitch-editors")
+        factory.addEditorFactoryListener(editorFactoryListener, disposable)
+        editorFactoryDisposable = disposable
     }
 
     fun disable() {
@@ -129,18 +117,47 @@ object InputMethodAutoSwitcher {
         }
         messageBusConnection?.disconnect()
         messageBusConnection = null
-        focusListenerDisposable?.let { Disposer.dispose(it) }
-        focusListenerDisposable = null
+        editorFactoryDisposable?.let { Disposer.dispose(it) }
+        editorFactoryDisposable = null
+        EditorFactory.getInstance().allEditors.forEach { detach(it) }
         executor?.shutdown()
         executor = null
         enabled = false
     }
 
-    private fun registerFocusChangeListener() {
-        val multicaster = EditorFactory.getInstance().eventMulticaster as? EditorEventMulticasterEx ?: return
-        val disposable = Disposer.newDisposable("vimimeswitch-focus")
-        multicaster.addFocusChangeListener(focusListener, disposable)
-        focusListenerDisposable = disposable
+    private fun attach(editor: Editor) {
+        if (editor.getUserData(FOCUS_LISTENER_KEY) != null) {
+            return
+        }
+        val listener = object : java.awt.event.FocusListener {
+            override fun focusLost(event: FocusEvent) {
+            }
+
+            override fun focusGained(event: FocusEvent) {
+                if (event.cause == FocusEvent.Cause.ACTIVATION) {
+                    return
+                }
+                onEditorFocused(editor)
+            }
+        }
+        editor.putUserData(FOCUS_LISTENER_KEY, listener)
+        editor.contentComponent.addFocusListener(listener)
+    }
+
+    private fun detach(editor: Editor) {
+        val listener = editor.getUserData(FOCUS_LISTENER_KEY) ?: return
+        editor.contentComponent.removeFocusListener(listener)
+        editor.putUserData(FOCUS_LISTENER_KEY, null)
+    }
+
+    private fun onEditorFocused(editor: Editor) {
+        if (!enabled || !VimPlugin.isEnabled()) {
+            return
+        }
+        if (CommandState.getInstance(editor).mode in EDITING_MODES) {
+            return
+        }
+        executor?.execute { switcher.switchToEnglish() }
     }
 
     private const val INPUT_SOURCE_IN_NORMAL = "keep_input_source_in_normal"
