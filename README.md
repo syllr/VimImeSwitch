@@ -73,7 +73,7 @@ set keep-english-in-normal
 ./gradlew buildPlugin
 ```
 
-产物：`build/distributions/VimImeSwitch-0.0.1.zip`。
+产物：`build/distributions/VimImeSwitch-<version>.zip`。
 
 发布前建议跑一次兼容性校验（使用本机 2026.3 平台，约 8 分钟）：
 

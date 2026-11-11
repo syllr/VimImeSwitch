@@ -3,7 +3,7 @@
     <name>VimImeSwitch</name>
 
     <vendor email="shenyuanlaolarou@gmail.com" url="https://github.com/syllr/VimImeSwitch">
-        syllr
+        shenyuanlaolarou
     </vendor>
 
     <description><![CDATA[
@@ -33,6 +33,12 @@
     ]]></description>
 
             <change-notes><![CDATA[
+      <p>0.0.2</p>
+      <ul>
+        <li>插件图标改为 V</li>
+        <li>vendor 名称统一为 shenyuanlaolarou</li>
+      </ul>
+
       <p>0.0.1</p>
       <ul>
         <li>基于 hadix-lin/ideavim_extension 1.7.4 分叉，仅支持 macOS</li>

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.syllr"
-version = "0.0.1"
+version = "0.0.2"
 
 repositories {
 	mavenCentral()
@@ -37,7 +37,7 @@ intellijPlatform {
 	pluginConfiguration {
 		id = "io.github.syllr.vimimeswitch"
 		name = "VimImeSwitch"
-		version = "0.0.1"
+		version = "0.0.2"
 		ideaVersion {
 			// 仅 2026.3 及以上；不设 until-build，后续版本默认继续兼容
 			sinceBuild = "263"
