@@ -2,13 +2,15 @@
     <id>io.github.syllr.vimimeswitch</id>
     <name>VimImeSwitch</name>
 
-    <vendor email="shenyuanlaolarou@gmail.com" url="https://github.com/syllr/ideavim_extension">
+    <vendor email="shenyuanlaolarou@gmail.com" url="https://github.com/syllr/VimImeSwitch">
         syllr
     </vendor>
 
     <description><![CDATA[
+      <p>Switch the macOS input source back to English when leaving Vim insert mode. Requires IdeaVim and macOS.</p>
+
       <p>IdeaVim 的扩展：从插入模式退回到普通模式时，自动把系统输入法切回英文。仅支持 macOS。</p>
-      <p>本插件基于 <a href="https://github.com/hadix-lin/ideavim_extension">hadix-lin/ideavim_extension</a>（Apache-2.0）继续维护。</p>
+      <p>本插件基于 <a href="https://github.com/hadix-lin/ideavim_extension">hadix-lin/ideavim_extension</a>（Apache-2.0）继续维护，源码托管在 <a href="https://github.com/syllr/VimImeSwitch">syllr/VimImeSwitch</a>。</p>
 
       <h3>功能</h3>
       <ul>
@@ -28,7 +30,6 @@
         <li>macOS，且已启用 ABC 或 U.S. 英文键盘</li>
         <li>IdeaVim</li>
       </ul>
-      <p>Switch the system input source back to English when leaving insert mode. Requires IdeaVim and macOS.</p>
     ]]></description>
 
             <change-notes><![CDATA[

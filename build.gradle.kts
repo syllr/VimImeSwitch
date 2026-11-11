@@ -39,7 +39,24 @@ intellijPlatform {
 		name = "VimImeSwitch"
 		version = "0.0.1"
 		ideaVersion {
+			// 仅 2026.3 及以上；不设 until-build，后续版本默认继续兼容
 			sinceBuild = "263"
+		}
+	}
+
+	// 版本更新时用 ./gradlew publishPlugin 自动发布；token 从环境变量读取，避免写进仓库
+	publishing {
+		token = providers.environmentVariable("PUBLISH_TOKEN")
+		channels = listOf("default")
+	}
+
+	// signPlugin 无需在此声明：未显式配置时，插件默认读取
+	// CERTIFICATE_CHAIN / PRIVATE_KEY / PRIVATE_KEY_PASSWORD 三个环境变量。
+
+	// 默认 recommended() 会下载多个 IDE；这里只校验当前目标平台，避免重复下载
+	pluginVerification {
+		ides {
+			current()
 		}
 	}
 }

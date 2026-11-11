@@ -63,6 +63,64 @@ set keep-english-in-normal
 ./gradlew runIde
 ```
 
+## 发布
+
+首次上架只能由网页手动上传，之后才能用 Gradle 自动发版。
+
+### 1. 构建产物
+
+```shell
+./gradlew buildPlugin
+```
+
+产物：`build/distributions/VimImeSwitch-0.0.1.zip`。
+
+发布前建议跑一次兼容性校验（使用本机 2026.3 平台，约 8 分钟）：
+
+```shell
+./gradlew verifyPlugin
+```
+
+报告在 `build/reports/pluginVerifier/`。
+
+### 2. 网页上传首版
+
+1. 用 JetBrains Account 登录 <https://plugins.jetbrains.com/author/me>。
+2. 首次上传需接受开发者协议并创建 Vendor Profile。
+3. 点 **Add new plugin**，选择 vendor，上传上面的 zip。
+4. 表单要点：
+   - **License**：Apache-2.0，并填源码地址 `https://github.com/syllr/VimImeSwitch`
+   - **Tags**：`Vim`、`Editor`、`Input`
+   - **Channel**：留空即正式渠道（想先灰度可以填 `beta`）
+5. 提交后等待审核，通过后插件页即可访问，用户能在 IDE 内搜索安装。
+
+上架后在后台 **Technical Information** 里补上 issue tracker 与源码链接。注意目前仓库的 Issues 是关闭状态，需要先开启，否则 issue tracker 链接无处可指。
+
+### 3. 后续版本自动发布
+
+在 <https://plugins.jetbrains.com/author/me/tokens> 生成 Personal Access Token（只显示一次），然后：
+
+```shell
+# 先把 build.gradle.kts 里的 version 和 plugin.xml 的 change-notes 更新掉
+PUBLISH_TOKEN=perm:xxxxx ./gradlew publishPlugin
+```
+
+Marketplace 不接受同一版本号重复上传，每次发版都必须改版本号。
+
+### 4. 插件签名（可选，推荐）
+
+未签名的插件也能上架，只是安装时会提示来源未验证。签名后 IDE 不再告警：
+
+```shell
+# chains/private 由 Marketplace 后台 Signing 页生成，或自行用 openssl 生成
+export CERTIFICATE_CHAIN="$(base64 -i chain.crt)"
+export PRIVATE_KEY="$(base64 -i private.pem)"
+export PRIVATE_KEY_PASSWORD='你的密码'
+./gradlew signPlugin
+```
+
+`publishPlugin` 会在这个配置存在时自动先执行 `signPlugin`。
+
 ## 许可
 
 Apache-2.0，见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)。
